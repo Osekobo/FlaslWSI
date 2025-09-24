@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.secret_key = "1213424"
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:12039@localhost:5432/Flask_API"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:12039@localhost:5432/Flask_API"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.permanent_session_lifetime = timedelta(days = 3)
 
@@ -25,12 +25,25 @@ class users(db.Model):
 def home():
   return render_template("index.html")
 
+@app.route("/view")
+def view():
+  return render_template("view.html", values=users.query.all())
+
 @app.route("/login", methods=["POST", "GET"])
 def login():
   if request.method == "POST":
     session.permanent = True
     user = request.form["nm"]
     session["user"] = user
+    found_user = users.query.filter_by(name=user).delete()
+    for user in found_user:
+      user.delete()
+    if found_user:
+      session["email"]   = found_user.email
+    else:
+      usr = users(user, "")  
+      db.session.add(usr)
+      db.session.commit()
     flash("Login Succesful!")
     return redirect(url_for("user"))
   else:
