@@ -2,6 +2,7 @@
 {% block title %}Login Page{% endblock %}
 
 {% block content %}
+  <image src="{{ url_for('static', filename='images/image.png')}}">
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       {% for msg in messages %}
